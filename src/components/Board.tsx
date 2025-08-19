@@ -12,7 +12,7 @@ export default function Board() {
   const status = useGameStore(s => s.status);
 
   return (
-    <div className="relative grid grid-cols-8 aspect-square rounded-xl overflow-hidden border border-slate-300 dark:border-slate-700">
+    <div className="relative grid grid-cols-8 h-full max-w-full aspect-square rounded-xl overflow-hidden border border-slate-300 dark:border-slate-700">
       {board.map((sq, i) => {
         const isLight = (sq.coord.x + sq.coord.y) % 2 === 0;
         const on = () => selectSquare(sq.coord);
@@ -25,8 +25,8 @@ export default function Board() {
             key={i}
             onClick={status === "running" ? on : undefined}
             className={cx(
-              "relative cursor-pointer select-none",
-              isLight ? "bg-boardLight" : "bg-boardDark",
+              "relative cursor-pointer select-none bg-cover",
+              isLight ? "bg-dnd-light dark:bg-dnd-light-dark" : "bg-dnd-dark dark:bg-dnd-dark-dark",
               "hover:brightness-110"
             )}
           >

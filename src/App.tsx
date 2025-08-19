@@ -26,8 +26,8 @@ export default function App() {
           </div>
         </header>
 
-        <main className="p-4 grid gap-4 md:grid-cols-[1fr_320px]">
-          <div className="rounded-2xl p-3 border shadow-[0_8px_30px_rgba(0,0,0,0.08)] bg-slate-100/40 border-slate-200 dark:bg-slate-800/40 dark:border-slate-800">
+        <main className="p-4 grid gap-4 md:grid-cols-[1fr_320px] h-full">
+          <div className="rounded-2xl p-3 border shadow-[0_8px_30px_rgba(0,0,0,0.08)] bg-slate-100/40 border-slate-200 dark:bg-slate-800/40 dark:border-slate-800 flex items-center justify-center h-full">
             <Board />
           </div>
 
