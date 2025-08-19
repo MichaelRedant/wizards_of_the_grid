@@ -2,10 +2,12 @@ import Board from "./components/Board";
 import HUD from "./components/HUD";
 import DMLog from "./components/DMLog";
 import AbilityBar from "./components/AbilityBar";
+import Onboarding from "./components/Onboarding";
 import { useState } from "react";
 
 export default function App() {
   const [theme, setTheme] = useState<"light" | "dark">("dark");
+  const [showOnboarding, setShowOnboarding] = useState(false);
   return (
     <div className={theme === "dark" ? "dark h-screen" : "h-screen"}>
       <div className="grid h-full grid-rows-[auto_1fr_auto] bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100 antialiased">
@@ -17,12 +19,20 @@ export default function App() {
                 DnD-geïnspireerd schaken. HP, abilities, cooldowns. Minder zout, meer vuurballen.
               </p>
             </div>
-            <button
-              className="px-3 py-1.5 rounded-lg bg-slate-200 hover:bg-slate-300 text-sm text-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100"
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            >
-              {theme === "dark" ? "Light" : "Dark"} mode
-            </button>
+            <div className="flex gap-2">
+              <button
+                className="px-3 py-1.5 rounded-lg bg-slate-200 hover:bg-slate-300 text-sm text-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100"
+                onClick={() => setShowOnboarding(true)}
+              >
+                Info
+              </button>
+              <button
+                className="px-3 py-1.5 rounded-lg bg-slate-200 hover:bg-slate-300 text-sm text-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100"
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              >
+                {theme === "dark" ? "Light" : "Dark"} mode
+              </button>
+            </div>
           </div>
         </header>
 
@@ -42,6 +52,7 @@ export default function App() {
           © {new Date().getFullYear()} Wizards of the Grid. Gemaakt in React + Tailwind.
         </footer>
       </div>
+      {showOnboarding && <Onboarding onClose={() => setShowOnboarding(false)} />}
     </div>
   );
 }
