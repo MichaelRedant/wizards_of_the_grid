@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { castAbility, canCastAbility } from "../game/abilities";
+import { chooseMove } from "../game/ai";
 import type { ApplyResult, Coord, Faction, GameState, Piece } from "../game/types";
 import { baseStats, getSquare, idx, initialPieces, initialTerrain, isEnemy, legalMoves, rebuildBoard } from "../game/chess";
 
@@ -11,6 +12,7 @@ type Actions = {
   startGame: (faction: Faction) => void;
   endGame: () => void;
   restartGame: () => void;
+  runAiTurn: () => void;
 
   // Nieuwe toggles/instellingen
   setFogEnabled: (on: boolean) => void;
@@ -75,6 +77,21 @@ export const useGameStore = create<GameState & Actions>((set, get) => ({
   endGame: () => set({ status: "ended", log: [...get().log, "Spel beëindigd."] }),
   restartGame: () => set(state => createGameState(state.player)),
   selectAbility: (abilityId) => set({ selectedAbility: abilityId }),
+
+  runAiTurn: () => {
+    const state = get();
+    if (state.status !== "running") return;
+    const move = chooseMove(state, state.turn);
+    if (!move) {
+      set({ log: [...state.log, "🤖 geen zet beschikbaar."] });
+      get().endTurn();
+      return;
+    }
+    const log = [...state.log, `🤖 ${move.pieceId} -> (${move.to.x},${move.to.y})`];
+    set({ selected: move.pieceId, legalMoves: [move.to], log });
+    get().movePiece(move.to);
+    get().endTurn();
+  },
 
   selectSquare: (coord) => {
     const state = get();
@@ -253,6 +270,9 @@ export const useGameStore = create<GameState & Actions>((set, get) => ({
       log: [...log, `— Einde beurt. ${next} is aan zet.`],
       zones: state.zones,
     });
+    if (next !== state.player) {
+      setTimeout(() => get().runAiTurn(), 500);
+    }
   },
 }));
 
