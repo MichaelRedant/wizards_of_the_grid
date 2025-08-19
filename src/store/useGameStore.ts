@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { castAbility, canCastAbility } from "../game/abilities";
 import { chooseMove } from "../game/ai";
-import type { ApplyResult, Coord, Faction, GameState, Piece } from "../game/types";
+import type { ApplyResult, Coord, Faction, GameState, Piece, AiDifficulty } from "../game/types";
 import { baseStats, getSquare, idx, initialPieces, initialTerrain, isEnemy, legalMoves, rebuildBoard } from "../game/chess";
 
 type Actions = {
@@ -18,6 +18,7 @@ type Actions = {
   setFogEnabled: (on: boolean) => void;
   setVisionRange: (n: number) => void;
   setPerPieceVisionEnabled: (on: boolean) => void;
+  setDifficulty: (d: AiDifficulty) => void;
 };
 
 const createGameState = (player: Faction): GameState => {
@@ -38,6 +39,7 @@ const createGameState = (player: Faction): GameState => {
     fogEnabled: true,
     visionRange: 3,
     perPieceVisionEnabled: true,
+    difficulty: "easy",
   };
   rebuildBoard(state.board, state.pieces);
   return state;
@@ -61,6 +63,7 @@ const idleState = (): GameState => {
     fogEnabled: true,
     visionRange: 3,
     perPieceVisionEnabled: true,
+    difficulty: "easy",
   };
   rebuildBoard(state.board, state.pieces);
   return state;
@@ -73,6 +76,7 @@ export const useGameStore = create<GameState & Actions>((set, get) => ({
   setFogEnabled: (on) => set({ fogEnabled: on }),
   setVisionRange: (n) => set({ visionRange: Math.max(1, Math.min(6, Math.floor(n))) }),
   setPerPieceVisionEnabled: (on) => set({ perPieceVisionEnabled: on }),
+  setDifficulty: (d) => set({ difficulty: d }),
 
   // Lifecycle
   startGame: (faction) => set(createGameState(faction)),
@@ -83,7 +87,7 @@ export const useGameStore = create<GameState & Actions>((set, get) => ({
   runAiTurn: () => {
     const state = get();
     if (state.status !== "running") return;
-    const move = chooseMove(state, state.turn);
+    const move = chooseMove(state, state.turn, state.difficulty);
     if (!move) {
       set({ log: [...state.log, "🤖 geen zet beschikbaar."] });
       get().endTurn();

@@ -1,5 +1,6 @@
 import { useGameStore } from "../store/useGameStore";
 import { ABILITIES } from "../game/abilities";
+import type { AiDifficulty } from "../game/types";
 
 export default function HUD() {
   const turn = useGameStore(s => s.turn);
@@ -18,6 +19,8 @@ export default function HUD() {
   const setFogEnabled = useGameStore(s => s.setFogEnabled);
   const setVisionRange = useGameStore(s => s.setVisionRange);
   const setPerPieceVisionEnabled = useGameStore(s => s.setPerPieceVisionEnabled);
+  const difficulty = useGameStore(s => s.difficulty);
+  const setDifficulty = useGameStore(s => s.setDifficulty);
 
   const abilities = piece ? ABILITIES.filter(a => !a.pieceTypes || a.pieceTypes.includes(piece.type)) : [];
 
@@ -55,6 +58,22 @@ export default function HUD() {
           ) : (
             <button className="px-3 py-1.5 rounded-lg bg-slate-200 hover:bg-slate-300 text-sm text-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100" onClick={restartGame}>Opnieuw</button>
           )}
+        </div>
+      </div>
+
+      {/* AI difficulty */}
+      <div className="mt-3 grid gap-2 sm:grid-cols-3 items-center">
+        <div className="col-span-1 text-xs text-slate-600 dark:text-slate-400">AI Moeilijkheid</div>
+        <div className="col-span-2">
+          <select
+            className="px-2 py-1 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-slate-100 text-sm"
+            value={difficulty}
+            onChange={e => setDifficulty(e.target.value as AiDifficulty)}
+          >
+            <option value="easy">Makkelijk</option>
+            <option value="medium">Normaal</option>
+            <option value="hard">Moeilijk</option>
+          </select>
         </div>
       </div>
 

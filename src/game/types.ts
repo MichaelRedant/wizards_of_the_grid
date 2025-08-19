@@ -1,6 +1,7 @@
 export type Faction = "white" | "black";
 export type Terrain = "none" | "heal" | "arcane" | "trap";
 export type PieceType = "king" | "queen" | "rook" | "bishop" | "knight" | "pawn";
+export type AiDifficulty = "easy" | "medium" | "hard";
 
 export type Coord = { x: number; y: number }; // x: 0-7, y: 0-7
 export type GameStatus = "idle" | "running" | "ended";
@@ -68,6 +69,7 @@ export interface GameState {
   fogEnabled: boolean;
   visionRange: number;           // globaal zicht (Chebyshev)
   perPieceVisionEnabled: boolean; // of board per-stuk vision gebruikt
+  difficulty: AiDifficulty;
 }
 
 export type ApplyResult = {
