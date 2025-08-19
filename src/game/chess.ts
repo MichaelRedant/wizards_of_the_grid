@@ -79,6 +79,7 @@ function defaultOptions(type: PieceType, faction: Faction): CharacterOptions {
   return { class: cls, ancestry, background, perks };
 }
 
+
 function pawnOptions(faction: Faction, cls: CharacterClass): CharacterOptions {
   const ancestry: Ancestry = faction === "white" ? "human" : "elf";
   const background: Background = "commoner";
@@ -97,6 +98,7 @@ export function initialPieces(playerFaction: Faction, pawnCls: CharacterClass): 
     if (type === "pawn" && faction === playerFaction) {
       options = pawnOptions(faction, pawnCls);
     }
+
     pieces[id] = {
       id,
       type,
@@ -105,7 +107,9 @@ export function initialPieces(playerFaction: Faction, pawnCls: CharacterClass): 
       hp: s.maxHp,
       xp: 0,
       cooldowns: {},
+
       options,
+
     };
   };
 
