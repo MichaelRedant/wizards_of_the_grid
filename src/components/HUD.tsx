@@ -1,8 +1,11 @@
+import { useState } from "react";
 import { useGameStore } from "../store/useGameStore";
 import { ABILITIES } from "../game/abilities";
-import type { AiDifficulty } from "../game/types";
+import type { AiDifficulty, CharacterClass } from "../game/types";
 
 export default function HUD() {
+  const [pawnClass, setPawnClass] = useState<CharacterClass>("fighter");
+
   const turn = useGameStore(s => s.turn);
   const selected = useGameStore(s => s.selected);
   const piece = useGameStore(s => (selected ? s.pieces[selected] : undefined));
@@ -52,8 +55,18 @@ export default function HUD() {
             </>
           ) : status === "idle" ? (
             <>
-              <button className="px-3 py-1.5 rounded-lg bg-slate-200 hover:bg-slate-300 text-sm text-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100" onClick={() => startGame("white")}>Start wit</button>
-              <button className="px-3 py-1.5 rounded-lg bg-slate-200 hover:bg-slate-300 text-sm text-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100" onClick={() => startGame("black")}>Start zwart</button>
+              <select
+                className="px-2 py-1 rounded-lg bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-slate-100 text-sm"
+                value={pawnClass}
+                onChange={e => setPawnClass(e.target.value as CharacterClass)}
+              >
+                <option value="fighter">Fighter</option>
+                <option value="artificer">Artificer</option>
+                <option value="bloodmage">Bloodmage</option>
+                <option value="shadow_monk">Shadow Monk</option>
+              </select>
+              <button className="px-3 py-1.5 rounded-lg bg-slate-200 hover:bg-slate-300 text-sm text-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100" onClick={() => startGame("white", pawnClass)}>Start wit</button>
+              <button className="px-3 py-1.5 rounded-lg bg-slate-200 hover:bg-slate-300 text-sm text-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100" onClick={() => startGame("black", pawnClass)}>Start zwart</button>
             </>
           ) : (
             <button className="px-3 py-1.5 rounded-lg bg-slate-200 hover:bg-slate-300 text-sm text-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100" onClick={restartGame}>Opnieuw</button>

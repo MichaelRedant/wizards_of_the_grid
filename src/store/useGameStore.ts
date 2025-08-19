@@ -1,7 +1,15 @@
 import { create } from "zustand";
 import { castAbility, canCastAbility } from "../game/abilities";
 import { chooseMove } from "../game/ai";
-import type { ApplyResult, Coord, Faction, GameState, Piece, AiDifficulty } from "../game/types";
+import type {
+  ApplyResult,
+  Coord,
+  Faction,
+  GameState,
+  Piece,
+  AiDifficulty,
+  CharacterClass,
+} from "../game/types";
 import { baseStats, getSquare, idx, initialPieces, initialTerrain, isEnemy, legalMoves, rebuildBoard } from "../game/chess";
 
 type Actions = {
@@ -9,7 +17,7 @@ type Actions = {
   selectAbility: (abilityId: string | undefined) => void;
   movePiece: (to: Coord) => void;
   endTurn: () => void;
-  startGame: (faction: Faction) => void;
+  startGame: (faction: Faction, pawnClass: CharacterClass) => void;
   endGame: () => void;
   restartGame: () => void;
   runAiTurn: () => void;
@@ -21,14 +29,15 @@ type Actions = {
   setDifficulty: (d: AiDifficulty) => void;
 };
 
-const createGameState = (player: Faction): GameState => {
+const createGameState = (player: Faction, pawnClass: CharacterClass): GameState => {
   const board = initialTerrain();
-  const pieces = initialPieces();
+  const pieces = initialPieces(player, pawnClass);
   const state: GameState = {
     board,
     pieces,
     turn: player,
     player,
+    pawnClass,
     status: "running",
     selected: undefined,
     selectedAbility: undefined,
@@ -53,6 +62,7 @@ const idleState = (): GameState => {
     pieces,
     turn: "white",
     player: "white",
+    pawnClass: "fighter",
     status: "idle",
     selected: undefined,
     selectedAbility: undefined,
@@ -79,9 +89,9 @@ export const useGameStore = create<GameState & Actions>((set, get) => ({
   setDifficulty: (d) => set({ difficulty: d }),
 
   // Lifecycle
-  startGame: (faction) => set(createGameState(faction)),
+  startGame: (faction, pawnClass) => set(createGameState(faction, pawnClass)),
   endGame: () => set({ status: "ended", log: [...get().log, "Spel beëindigd."] }),
-  restartGame: () => set(state => createGameState(state.player)),
+  restartGame: () => set(state => createGameState(state.player, state.pawnClass)),
   selectAbility: (abilityId) => set({ selectedAbility: abilityId }),
 
   runAiTurn: () => {

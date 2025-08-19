@@ -74,6 +74,7 @@ export interface GameState {
   pieces: Record<string, Piece>;
   turn: Faction;
   player: Faction;
+  pawnClass: CharacterClass;
   status: GameStatus;
   selected?: string;        // pieceId
   selectedAbility?: string; // abilityId

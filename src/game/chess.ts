@@ -79,10 +79,26 @@ function defaultOptions(type: PieceType, faction: Faction): CharacterOptions {
   return { class: cls, ancestry, background, perks };
 }
 
-export function initialPieces(): Record<string, Piece> {
+
+function pawnOptions(faction: Faction, cls: CharacterClass): CharacterOptions {
+  const ancestry: Ancestry = faction === "white" ? "human" : "elf";
+  const background: Background = "commoner";
+  const perks: string[] = [];
+  if (cls === "artificer") perks.push("arcane_engineer");
+  else if (cls === "bloodmage") perks.push("blood_pact");
+  else if (cls === "shadow_monk") perks.push("shadow_step");
+  return { class: cls, ancestry, background, perks };
+}
+
+export function initialPieces(playerFaction: Faction, pawnCls: CharacterClass): Record<string, Piece> {
   const pieces: Record<string, Piece> = {};
   const add = (id: string, type: PieceType, faction: Faction, x: number, y: number) => {
     const s = baseStats(type);
+    let options = defaultOptions(type, faction);
+    if (type === "pawn" && faction === playerFaction) {
+      options = pawnOptions(faction, pawnCls);
+    }
+
     pieces[id] = {
       id,
       type,
@@ -91,7 +107,9 @@ export function initialPieces(): Record<string, Piece> {
       hp: s.maxHp,
       xp: 0,
       cooldowns: {},
-      options: defaultOptions(type, faction),
+
+      options,
+
     };
   };
 
