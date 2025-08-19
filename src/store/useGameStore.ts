@@ -8,7 +8,7 @@ type Actions = {
   selectAbility: (abilityId: string | undefined) => void;
   movePiece: (to: Coord) => void;
   endTurn: () => void;
-  startGame: () => void;
+  startGame: (faction: Faction) => void;
   endGame: () => void;
   restartGame: () => void;
 
@@ -18,18 +18,19 @@ type Actions = {
   setPerPieceVisionEnabled: (on: boolean) => void;
 };
 
-const createGameState = (): GameState => {
+const createGameState = (player: Faction): GameState => {
   const board = initialTerrain();
   const pieces = initialPieces();
   const state: GameState = {
     board,
     pieces,
-    turn: "white",
+    turn: player,
+    player,
     status: "running",
     selected: undefined,
     selectedAbility: undefined,
     legalMoves: [],
-    log: ["Spel gestart. White begint."],
+    log: [`Spel gestart. ${player} begint.`],
     zones: [],
     fogEnabled: true,
     visionRange: 3,
@@ -46,6 +47,7 @@ const idleState = (): GameState => {
     board,
     pieces,
     turn: "white",
+    player: "white",
     status: "idle",
     selected: undefined,
     selectedAbility: undefined,
@@ -69,9 +71,9 @@ export const useGameStore = create<GameState & Actions>((set, get) => ({
   setPerPieceVisionEnabled: (on) => set({ perPieceVisionEnabled: on }),
 
   // Lifecycle
-  startGame: () => set(createGameState()),
+  startGame: (faction) => set(createGameState(faction)),
   endGame: () => set({ status: "ended", log: [...get().log, "Spel beëindigd."] }),
-  restartGame: () => set(createGameState()),
+  restartGame: () => set(state => createGameState(state.player)),
   selectAbility: (abilityId) => set({ selectedAbility: abilityId }),
 
   selectSquare: (coord) => {
