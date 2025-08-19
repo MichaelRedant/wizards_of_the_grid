@@ -5,7 +5,7 @@ import AbilityBar from "./components/AbilityBar";
 
 export default function App() {
   return (
-    <div className="min-h-full grid grid-rows-[auto_1fr_auto] bg-slate-900 text-slate-100 antialiased">
+    <div className="h-screen grid grid-rows-[auto_1fr_auto] bg-slate-900 text-slate-100 antialiased">
       <header className="p-4 border-b border-slate-800 sticky top-0 z-10 bg-slate-900/80 backdrop-blur">
         <h1 className="text-xl font-bold">🧙 Wizards of the Grid</h1>
         <p className="text-sm text-slate-400">

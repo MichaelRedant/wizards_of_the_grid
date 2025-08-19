@@ -3,22 +3,22 @@ import { baseStats } from "../game/chess";
 import { cx } from "../utils/cx";
 import type { IconType } from "react-icons";
 import {
-  GiChessKing,
-  GiChessQueen,
-  GiChessRook,
-  GiChessBishop,
-  GiChessKnight,
-  GiChessPawn,
+  GiWizardStaff,
+  GiSpellBook,
+  GiStoneTower,
+  GiHolySymbol,
+  GiMountedKnight,
+  GiPointySword,
   GiShield,
 } from "react-icons/gi";
 
 const ICONS: Record<Piece["type"], IconType> = {
-  king: GiChessKing,
-  queen: GiChessQueen,
-  rook: GiChessRook,
-  bishop: GiChessBishop,
-  knight: GiChessKnight,
-  pawn: GiChessPawn,
+  king: GiWizardStaff,
+  queen: GiSpellBook,
+  rook: GiStoneTower,
+  bishop: GiHolySymbol,
+  knight: GiMountedKnight,
+  pawn: GiPointySword,
 };
 
 export default function PieceView({ piece }: { piece: Piece }) {
@@ -32,8 +32,13 @@ export default function PieceView({ piece }: { piece: Piece }) {
   const Icon = ICONS[piece.type];
 
   return (
-    <div className={cx("absolute inset-0 flex items-center justify-center text-4xl", glow)}>
-      <div className={cx("relative", fg)}>
+    <div
+      className={cx(
+        "absolute inset-0 flex items-center justify-center text-4xl transition-transform duration-300",
+        glow,
+      )}
+    >
+      <div className={cx("relative transform hover:scale-110 hover:-translate-y-1", fg)}>
         <Icon />
         <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-12 h-2 bg-slate-700 rounded">
           <div
