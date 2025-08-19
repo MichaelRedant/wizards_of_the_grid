@@ -13,6 +13,7 @@ export const ABILITIES: Ability[] = [
   { id: "poison",    name: "Poison Strike", desc: "Vergiftig vijand (2 beurten). r=1 (Pawn/Knight)", cooldown: 2, target: "enemy", range: 1, pieceTypes: ["pawn","knight"] },
   { id: "stun",      name: "Stunning Blow", desc: "Stun vijand 1 beurt. r=1 (Knight)",             cooldown: 3, target: "enemy", range: 1, pieceTypes: ["knight"] },
   { id: "blink",     name: "Blink",     desc: "Teleporteer naar lege tile binnen r=3 (King)",      cooldown: 3, target: "tile", range: 3, pieceTypes: ["king"] },
+  { id: "drain",     name: "Life Drain",  desc: "Doe 1 dmg en heal zelf 1. r=2 (Bishop)", cooldown: 2, target: "enemy", range: 2, pieceTypes: ["bishop"] },
 
   // Nieuw voor zones/fog-of-war
   { id: "rune_flame", name: "Rune of Flames", desc: "Creëer 2 beurten lang een vurig rune-veld (r=1) dat vijanden 1 dmg doet aan beurt-einde. (Queen)", cooldown: 3, target: "tile", radius: 1, range: 3, pieceTypes: ["queen"] },
@@ -125,6 +126,20 @@ export function castAbility(
     caster.pos = { ...targetSq.coord };
     res.moved = { id: caster.id, to: targetSq.coord };
     res.text = `🌀 ${caster.id} blinkt naar (${targetSq.coord.x},${targetSq.coord.y}).`;
+  }
+
+  if (ability.id === "drain") {
+    const victId = targetSq.pieceId;
+    if (!victId) return { text: "Geen doelwit op de tile." };
+    const v = state.pieces[victId];
+    if (v.faction === caster.faction) return { text: "Doelwit is geen vijand." };
+    hit(v, 1);
+    const maxHp = baseStats(caster.type).maxHp;
+    caster.hp = Math.min(maxHp, caster.hp + 1);
+    res.damaged = [{ id: v.id, amount: 1 }];
+    res.healed = [{ id: caster.id, amount: 1 }];
+    if (v.hp <= 0) res.killedIds = [v.id];
+    res.text = `🩸 ${caster.id} drains ${v.id}.`;
   }
 
   // Zones (tijdelijke velden)
