@@ -185,6 +185,17 @@ export function castAbility(
     res.text = `👁️ ${caster.id} scryt de omgeving.`;
   }
 
+  if (caster.options.perks.includes("blood_pact") && (res.damaged?.length ?? 0) > 0) {
+    const maxHp = baseStats(caster.type).maxHp;
+    caster.hp = Math.min(maxHp, caster.hp + 1);
+    res.healed = [...(res.healed ?? []), { id: caster.id, amount: 1 }];
+    res.text += " 🩸 Blood Pact heelt caster.";
+  }
+
   caster.cooldowns[abilityId] = ability.cooldown;
+  if (caster.options.perks.includes("arcane_engineer")) {
+    caster.cooldowns[abilityId] = Math.max(0, caster.cooldowns[abilityId] - 1);
+    res.text += " ⚙️ Arcane Engineer verkort cooldown.";
+  }
   return res;
 }

@@ -3,6 +3,23 @@ export type Terrain = "none" | "heal" | "arcane" | "trap";
 export type PieceType = "king" | "queen" | "rook" | "bishop" | "knight" | "pawn";
 export type AiDifficulty = "easy" | "medium" | "hard";
 
+export type CharacterClass =
+  | "fighter"
+  | "artificer"
+  | "bloodmage"
+  | "shadow_monk";
+
+export type Ancestry = "human" | "elf" | "dwarf" | "orc";
+export type Background = "noble" | "scholar" | "soldier" | "commoner";
+
+export interface CharacterOptions {
+  class: CharacterClass;
+  subclass?: string;
+  ancestry: Ancestry;
+  background: Background;
+  perks: string[];
+}
+
 export type Coord = { x: number; y: number }; // x: 0-7, y: 0-7
 export type GameStatus = "idle" | "running" | "ended";
 
@@ -38,6 +55,8 @@ export interface Piece {
   xp: number;
   cooldowns: Record<string, number>;
   shield?: number;
+
+  options: CharacterOptions;
 
   // DnD statuseffecten
   poison?: number;   // doet 1 dmg bij endTurn
