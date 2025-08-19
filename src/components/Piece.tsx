@@ -14,21 +14,23 @@ const ICON_OPTIONS: Record<Piece["type"], string[]> = {
   pawn:   ["GiPlainDagger", "GiPointySword", "GiSwordHilt", "GiMagicSwirl"],
 };
 
+const GI = Gi as Record<string, IconType>;
+
 function pickIcon(type: Piece["type"]): IconType {
   const names = ICON_OPTIONS[type];
   for (const name of names) {
-    const Candidate = (Gi as any)[name] as IconType | undefined;
+    const Candidate = GI[name];
     if (Candidate) return Candidate;
   }
-  return (Gi as any).GiMagicSwirl as IconType;
+  return GI.GiMagicSwirl;
 }
 
 // Status icons
 function pickPoisonIcon(): IconType {
-  return (Gi as any).GiPoisonBottle ?? (Gi as any).GiPoisonCloud ?? (Gi as any).GiDeathSkull;
+  return GI.GiPoisonBottle ?? GI.GiPoisonCloud ?? GI.GiDeathSkull;
 }
 function pickStunIcon(): IconType {
-  return (Gi as any).GiPunchBlast ?? (Gi as any).GiStunGrenade ?? (Gi as any).GiLightningTrio;
+  return GI.GiPunchBlast ?? GI.GiStunGrenade ?? GI.GiLightningTrio;
 }
 
 export default function PieceView({ piece, terrain }: { piece: Piece; terrain?: Terrain }) {
@@ -51,9 +53,14 @@ export default function PieceView({ piece, terrain }: { piece: Piece; terrain?: 
     terrain === "arcane" ? "base-aura base-aura--arcane" :
     terrain === "trap"   ? "base-aura base-aura--trap" : "";
 
+  const label = `${piece.options.ancestry} ${piece.options.class}` +
+    (piece.options.subclass ? ` (${piece.options.subclass})` : "") +
+    `\nBackground: ${piece.options.background}` +
+    (piece.options.perks.length ? `\nPerks: ${piece.options.perks.join(",")}` : "");
+
   return (
-    <div className="absolute inset-0 flex items-center justify-center">
-      <div className={cx(baseCls, (piece.stunned ?? 0) > 0 ? "ring-2 ring-yellow-400/60" : "")}>
+    <div className="absolute inset-0 flex items-center justify-center" title={label}>
+      <div className={cx(baseCls, (piece.stunned ?? 0) > 0 ? "ring-2 ring-yellow-400/60" : "")}> 
         {/* Terrain aura rond de base */}
         {auraCls && <div className={auraCls} />}
 
