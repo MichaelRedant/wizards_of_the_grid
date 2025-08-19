@@ -1,4 +1,15 @@
-import type { Coord, Piece, PieceType, GameState, Faction, Square } from "./types";
+import type {
+  Coord,
+  Piece,
+  PieceType,
+  GameState,
+  Faction,
+  Square,
+  CharacterOptions,
+  CharacterClass,
+  Ancestry,
+  Background,
+} from "./types";
 
 export function inBounds(c: Coord) { return c.x >= 0 && c.x < 8 && c.y >= 0 && c.y < 8; }
 export function idx(c: Coord) { return c.y * 8 + c.x; }
@@ -32,11 +43,70 @@ export function baseStats(type: PieceType) {
   }
 }
 
-export function initialPieces(): Record<string, Piece> {
+function defaultOptions(type: PieceType, faction: Faction): CharacterOptions {
+  const ancestry: Ancestry = faction === "white" ? "human" : "elf";
+  let background: Background = "commoner";
+  let cls: CharacterClass = "fighter";
+  const perks: string[] = [];
+
+  switch (type) {
+    case "king":
+      cls = "artificer";
+      background = "noble";
+      perks.push("arcane_engineer");
+      break;
+    case "queen":
+      cls = "bloodmage";
+      background = "noble";
+      perks.push("blood_pact");
+      break;
+    case "knight":
+      cls = "shadow_monk";
+      background = "soldier";
+      perks.push("shadow_step");
+      break;
+    case "bishop":
+      background = "scholar";
+      break;
+    case "rook":
+      background = "noble";
+      break;
+    case "pawn":
+      background = "commoner";
+      break;
+  }
+
+  return { class: cls, ancestry, background, perks };
+}
+
+function pawnOptions(faction: Faction, cls: CharacterClass): CharacterOptions {
+  const ancestry: Ancestry = faction === "white" ? "human" : "elf";
+  const background: Background = "commoner";
+  const perks: string[] = [];
+  if (cls === "artificer") perks.push("arcane_engineer");
+  else if (cls === "bloodmage") perks.push("blood_pact");
+  else if (cls === "shadow_monk") perks.push("shadow_step");
+  return { class: cls, ancestry, background, perks };
+}
+
+export function initialPieces(playerFaction: Faction, pawnCls: CharacterClass): Record<string, Piece> {
   const pieces: Record<string, Piece> = {};
   const add = (id: string, type: PieceType, faction: Faction, x: number, y: number) => {
     const s = baseStats(type);
-    pieces[id] = { id, type, faction, pos: { x, y }, hp: s.maxHp, xp: 0, cooldowns: {} };
+    let options = defaultOptions(type, faction);
+    if (type === "pawn" && faction === playerFaction) {
+      options = pawnOptions(faction, pawnCls);
+    }
+    pieces[id] = {
+      id,
+      type,
+      faction,
+      pos: { x, y },
+      hp: s.maxHp,
+      xp: 0,
+      cooldowns: {},
+      options,
+    };
   };
 
   // white
@@ -89,9 +159,17 @@ export function legalMoves(state: GameState, piece: Piece): Coord[] {
       return deltas.filter(inBounds);
     }
     case "knight": {
-      const ds = [{x:2,y:1},{x:2,y:-1},{x:-2,y:1},{x:-2,y:-1},{x:1,y:2},{x:1,y:-2},{x:-1,y:2},{x:-1,y:-2}]
-        .map(d => ({x: piece.pos.x + d.x, y: piece.pos.y + d.y}));
-      return ds.filter(inBounds);
+      const ds = [
+        {x:2,y:1},{x:2,y:-1},{x:-2,y:1},{x:-2,y:-1},{x:1,y:2},{x:1,y:-2},{x:-1,y:2},{x:-1,y:-2}
+      ].map(d => ({x: piece.pos.x + d.x, y: piece.pos.y + d.y}));
+      let moves = ds.filter(inBounds);
+      if (piece.options.perks.includes("shadow_step")) {
+        const extra = [-1,0,1].flatMap(dx =>
+          [-1,0,1].map(dy => ({x: piece.pos.x + dx, y: piece.pos.y + dy}))
+        ).filter(c => !(c.x===piece.pos.x && c.y===piece.pos.y));
+        moves = moves.concat(extra.filter(inBounds));
+      }
+      return moves;
     }
     case "pawn": {
       const dir = piece.faction === "white" ? -1 : 1;
