@@ -43,6 +43,9 @@ Nieuwe code bevat volledige bestandsnamen en paden in de uitleg.
 
 Commit message volgt conventie
 
+---
+
+
 2) Agentenoverzicht
 Agent 1 — Senior React Architect
 
@@ -287,6 +290,9 @@ Wijzig uitsluitend Tailwind-classes in:
 - src/components/[lijst]
 Geef volledige componenten.
 
+---
+
+
 4) Checklists
 
 Code review
@@ -313,6 +319,9 @@ Release
 
  Nieuwe features gedocumenteerd in docs/
 
+---
+
+
 5) Veelvoorkomende valkuilen
 
 Tailwind v4: Gebruik @tailwindcss/vite. Vermijd postcss.config.js. Utility-only is het meest robuust.
@@ -320,6 +329,9 @@ Tailwind v4: Gebruik @tailwindcss/vite. Vermijd postcss.config.js. Utility-only 
 Windows/Git Bash: Gebruik forward slashes. NPM/Npx kunnen haperen op OneDrive-paden.
 
 TypeScript: Bij errors met “must be imported using a type-only import” → import type { X } from "...".
+
+---
+
 
 6) Snelle commando’s
 # Dev
@@ -336,6 +348,9 @@ git push
 # Nieuwe branch
 git checkout -b feat/naam
 
+---
+
+
 7) Glossarium
 
 Tile: Eén veld op het 8×8 bord.
@@ -345,6 +360,8 @@ Piece: Schaakstuk met hp/xp/abilities.
 Terrain: heal / arcane / trap / none.
 
 DMLog: Event- en debuglog.
+
+---
 
 8) Roadmap (kort)
 
@@ -361,3 +378,7 @@ Multiplayer (WebSockets)
 Meer status-effecten (poison/stun)
 
 Einde van agents.md
+
+
+---
+
