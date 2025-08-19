@@ -1,3 +1,187 @@
 @import "tailwindcss";
 :root { color-scheme: light dark; }
 html, body, #root { height: 100%; }
+
+/* =========================
+   DnD TILE TEXTURES (bord)
+   ========================= */
+.dnd-tile {
+  position: relative;
+  overflow: hidden;
+}
+.dnd-tile::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 18px rgba(0,0,0,0.28);
+  pointer-events: none;
+}
+
+/* Light theme textures (perkament/steen) */
+.dnd-tile--light {
+  background:
+    radial-gradient(1px 1px at 20% 30%, rgba(0,0,0,0.06), transparent),
+    radial-gradient(1px 1px at 70% 60%, rgba(0,0,0,0.05), transparent),
+    linear-gradient(135deg, #e9dec2 0%, #d7c69a 45%, #ccb482 100%);
+}
+.dnd-tile--dark {
+  background:
+    radial-gradient(1px 1px at 30% 40%, rgba(255,255,255,0.05), transparent),
+    radial-gradient(1px 1px at 75% 70%, rgba(255,255,255,0.04), transparent),
+    linear-gradient(135deg, #8a7358 0%, #6f5742 45%, #5a4637 100%);
+}
+
+/* Dark theme overrides */
+.dark .dnd-tile--light {
+  background:
+    radial-gradient(1px 1px at 25% 35%, rgba(255,255,255,0.07), transparent),
+    radial-gradient(1px 1px at 65% 65%, rgba(255,255,255,0.05), transparent),
+    linear-gradient(135deg, #6b7280 0%, #4b5563 50%, #374151 100%);
+}
+.dark .dnd-tile--dark {
+  background:
+    radial-gradient(1px 1px at 15% 25%, rgba(255,255,255,0.05), transparent),
+    radial-gradient(1px 1px at 80% 80%, rgba(255,255,255,0.04), transparent),
+    linear-gradient(135deg, #1f2937 0%, #0f172a 50%, #0b1220 100%);
+}
+
+/* =========================
+   MINI-BASE (tabletop stijl)
+   ========================= */
+.mini-base {
+  width: 78%;
+  aspect-ratio: 1 / 1;
+  border-radius: 9999px;
+  display: grid;
+  place-items: center;
+  position: relative;
+  transform: translateZ(0);
+  border: 1px solid rgba(0,0,0,0.35);
+  box-shadow:
+    0 8px 18px rgba(0,0,0,0.35),
+    inset 0 2px 6px rgba(255,255,255,0.08),
+    inset 0 -6px 12px rgba(0,0,0,0.35);
+}
+
+/* Bevel ring */
+.mini-base::before {
+  content: "";
+  position: absolute;
+  inset: 4%;
+  border-radius: 9999px;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,0.18), transparent 45%),
+    radial-gradient(circle at 70% 70%, rgba(0,0,0,0.22), transparent 55%);
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+/* Elliptische schaduw onder de base (zwevend effect) */
+.mini-base::after {
+  content: "";
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  bottom: -8%;
+  height: 14%;
+  border-radius: 9999px;
+  background: radial-gradient(closest-side, rgba(0,0,0,0.35), transparent 70%);
+  filter: blur(2px);
+  pointer-events: none;
+}
+
+/* Faction varianten */
+.mini-base--gold {
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,0.25), transparent 40%),
+    conic-gradient(from 210deg, #f1d27a, #d7a63a, #b77714, #d7a63a, #f1d27a);
+}
+.mini-base--obsidian {
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,0.12), transparent 40%),
+    conic-gradient(from 210deg, #3b4252, #1f2530, #0c0f14, #1f2530, #3b4252);
+  border-color: rgba(255,255,255,0.18);
+}
+
+/* Selectie-glow */
+.mini-base.is-selected {
+  box-shadow:
+    0 10px 22px rgba(16,185,129,0.35),
+    inset 0 2px 6px rgba(255,255,255,0.08),
+    inset 0 -6px 12px rgba(0,0,0,0.35);
+}
+
+/* Icon sizing */
+.piece-icon {
+  font-size: clamp(26px, 5vw, 40px);
+  line-height: 1;
+}
+
+/* Terrain aura rond de base */
+.base-aura {
+  position: absolute;
+  inset: -6%;
+  border-radius: 9999px;
+  pointer-events: none;
+}
+.base-aura--heal {
+  box-shadow: 0 0 14px rgba(16,185,129,0.55), inset 0 0 14px rgba(16,185,129,0.35);
+}
+.base-aura--arcane {
+  box-shadow: 0 0 14px rgba(147,51,234,0.55), inset 0 0 14px rgba(147,51,234,0.35);
+}
+.base-aura--trap {
+  box-shadow: 0 0 14px rgba(239,68,68,0.55), inset 0 0 14px rgba(239,68,68,0.35);
+}
+
+/* =========================
+   ZONE OVERLAYS
+   ========================= */
+.zone-rune {
+  background:
+    radial-gradient(closest-side, rgba(239,68,68,0.15), transparent 70%),
+    repeating-conic-gradient(from 0deg, rgba(239,68,68,0.25) 0 10deg, transparent 10deg 20deg);
+  mix-blend-mode: overlay;
+}
+.zone-sanctuary {
+  background:
+    radial-gradient(closest-side, rgba(59,130,246,0.14), transparent 70%),
+    repeating-conic-gradient(from 0deg, rgba(59,130,246,0.22) 0 10deg, transparent 10deg 20deg);
+  mix-blend-mode: overlay;
+}
+.zone-reveal {
+  background:
+    radial-gradient(closest-side, rgba(255,255,255,0.16), transparent 70%),
+    repeating-conic-gradient(from 0deg, rgba(255,255,255,0.18) 0 8deg, transparent 8deg 16deg);
+  mix-blend-mode: screen;
+}
+
+/* Coordinates */
+.square-coord {
+  color: rgba(15,23,42,0.7);
+}
+.dark .square-coord {
+  color: rgba(255,255,255,0.7);
+}
+
+/* =========================
+   Vision overlays (specials)
+   ========================= */
+.vision-torch {
+  background:
+    radial-gradient(closest-side, rgba(245,158,11,0.28), transparent 70%),
+    radial-gradient(closest-side, rgba(251,191,36,0.18), transparent 85%);
+  mix-blend-mode: screen;
+}
+.vision-night {
+  background:
+    radial-gradient(closest-side, rgba(56,189,248,0.18), transparent 70%),
+    repeating-conic-gradient(from 0deg, rgba(59,130,246,0.16) 0 10deg, transparent 10deg 20deg);
+  mix-blend-mode: screen;
+}
+.vision-true {
+  background:
+    radial-gradient(closest-side, rgba(147,51,234,0.20), transparent 70%),
+    repeating-conic-gradient(from 0deg, rgba(236,72,153,0.18) 0 8deg, transparent 8deg 16deg);
+  mix-blend-mode: screen;
+}

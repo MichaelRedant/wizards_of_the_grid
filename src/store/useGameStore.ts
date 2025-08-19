@@ -11,6 +11,11 @@ type Actions = {
   startGame: () => void;
   endGame: () => void;
   restartGame: () => void;
+
+  // Nieuwe toggles/instellingen
+  setFogEnabled: (on: boolean) => void;
+  setVisionRange: (n: number) => void;
+  setPerPieceVisionEnabled: (on: boolean) => void;
 };
 
 const createGameState = (): GameState => {
@@ -20,11 +25,15 @@ const createGameState = (): GameState => {
     board,
     pieces,
     turn: "white",
+    status: "running",
     selected: undefined,
     selectedAbility: undefined,
     legalMoves: [],
     log: ["Spel gestart. White begint."],
-    status: "running",
+    zones: [],
+    fogEnabled: true,
+    visionRange: 3,
+    perPieceVisionEnabled: true,
   };
   rebuildBoard(state.board, state.pieces);
   return state;
@@ -37,11 +46,15 @@ const idleState = (): GameState => {
     board,
     pieces,
     turn: "white",
+    status: "idle",
     selected: undefined,
     selectedAbility: undefined,
     legalMoves: [],
     log: ["Klik start om te beginnen."],
-    status: "idle",
+    zones: [],
+    fogEnabled: true,
+    visionRange: 3,
+    perPieceVisionEnabled: true,
   };
   rebuildBoard(state.board, state.pieces);
   return state;
@@ -50,6 +63,12 @@ const idleState = (): GameState => {
 export const useGameStore = create<GameState & Actions>((set, get) => ({
   ...idleState(),
 
+  // Settings
+  setFogEnabled: (on) => set({ fogEnabled: on }),
+  setVisionRange: (n) => set({ visionRange: Math.max(1, Math.min(6, Math.floor(n))) }),
+  setPerPieceVisionEnabled: (on) => set({ perPieceVisionEnabled: on }),
+
+  // Lifecycle
   startGame: () => set(createGameState()),
   endGame: () => set({ status: "ended", log: [...get().log, "Spel beëindigd."] }),
   restartGame: () => set(createGameState()),
@@ -91,7 +110,15 @@ export const useGameStore = create<GameState & Actions>((set, get) => ({
     const state = get();
     if (state.status !== "running") return;
     if (!state.selected) return;
+
     const piece = state.pieces[state.selected];
+
+    // Stunned blokkeert bewegen
+    if ((piece.stunned ?? 0) > 0) {
+      set({ log: [...state.log, `💫 ${piece.id} is stunned en kan niet bewegen.`] });
+      return;
+    }
+
     const allowed = state.legalMoves.some(m => m.x === to.x && m.y === to.y);
     if (!allowed) return;
 
@@ -130,6 +157,8 @@ export const useGameStore = create<GameState & Actions>((set, get) => ({
 
     rebuildBoard(state.board, state.pieces);
     const tile = getSquare(state.board, piece.pos)!;
+
+    // Terrains
     if (tile.terrain === "heal") {
       piece.hp = Math.min(baseStats(piece.type).maxHp, piece.hp + 1);
       log.push(`💚 ${piece.id} +1 HP op Healing Spring.`);
@@ -152,16 +181,75 @@ export const useGameStore = create<GameState & Actions>((set, get) => ({
   endTurn: () => {
     const state = get();
     if (state.status !== "running") return;
+
+    const log = [...state.log];
+
+    // Cooldowns + status ticks
     for (const p of Object.values(state.pieces)) {
+      // cooldowns
       for (const key of Object.keys(p.cooldowns)) p.cooldowns[key] = Math.max(0, p.cooldowns[key] - 1);
+
+      // poison tick (1 dmg)
+      if ((p.poison ?? 0) > 0) {
+        p.hp -= 1;
+        p.poison = Math.max(0, (p.poison ?? 0) - 1);
+        log.push(`☠️ ${p.id} lijdt 1 poison damage.`);
+        if (p.hp <= 0) {
+          delete state.pieces[p.id];
+          log.push(`☠️ ${p.id} bezwijkt aan het gif.`);
+        }
+      }
+
+      // stun tick
+      if ((p.stunned ?? 0) > 0) {
+        p.stunned = Math.max(0, (p.stunned ?? 0) - 1);
+        if (p.stunned === 0) log.push(`💫 ${p.id} herstelt van stun.`);
+      }
     }
+
+    // Zone effecten (eind van beurt)
+    const zones = state.zones;
+    const cheb = (a: {x:number;y:number}, b:{x:number;y:number}) => Math.max(Math.abs(a.x-b.x), Math.abs(a.y-b.y));
+
+    for (const z of zones) {
+      if (z.kind === "rune_flame") {
+        for (const p of Object.values(state.pieces)) {
+          if (cheb(p.pos, z.center) <= z.radius && p.faction !== z.faction) {
+            p.hp -= 1;
+            log.push(`🜂 ${p.id} verbrandt 1 HP op Rune of Flames.`);
+            if (p.hp <= 0) {
+              delete state.pieces[p.id];
+              log.push(`☠️ ${p.id} gaat ten onder in het vuur.`);
+            }
+          }
+        }
+      } else if (z.kind === "sanctuary") {
+        for (const p of Object.values(state.pieces)) {
+          if (cheb(p.pos, z.center) <= z.radius && p.faction === z.faction) {
+            const max = baseStats(p.type).maxHp;
+            const before = p.hp;
+            p.hp = Math.min(max, p.hp + 1);
+            if (p.hp > before) log.push(`🕊️ ${p.id} wordt geheeld (+1) in Sanctuary.`);
+          }
+        }
+      }
+      // reveal: UI only
+      z.ttl = Math.max(0, z.ttl - 1);
+    }
+
+    // Verwijder verlopen zones
+    state.zones = zones.filter(z => z.ttl > 0);
+
+    // beurt wisselen
     const next: Faction = state.turn === "white" ? "black" : "white";
+    rebuildBoard(state.board, state.pieces);
     set({
       turn: next,
       selected: undefined,
       selectedAbility: undefined,
       legalMoves: [],
-      log: [...state.log, `— Einde beurt. ${next} is aan zet.`],
+      log: [...log, `— Einde beurt. ${next} is aan zet.`],
+      zones: state.zones,
     });
   },
 }));

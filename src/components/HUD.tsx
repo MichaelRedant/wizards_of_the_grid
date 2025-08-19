@@ -11,6 +11,13 @@ export default function HUD() {
   const restartGame = useGameStore(s => s.restartGame);
   const status = useGameStore(s => s.status);
 
+  const fogEnabled = useGameStore(s => s.fogEnabled);
+  const visionRange = useGameStore(s => s.visionRange);
+  const perPieceVision = useGameStore(s => s.perPieceVisionEnabled);
+  const setFogEnabled = useGameStore(s => s.setFogEnabled);
+  const setVisionRange = useGameStore(s => s.setVisionRange);
+  const setPerPieceVisionEnabled = useGameStore(s => s.setPerPieceVisionEnabled);
+
   const abilities = piece ? ABILITIES.filter(a => !a.pieceTypes || a.pieceTypes.includes(piece.type)) : [];
 
   return (
@@ -42,8 +49,45 @@ export default function HUD() {
           )}
         </div>
       </div>
+
+      {/* Fog-of-war controls */}
+      <div className="mt-3 grid gap-2 sm:grid-cols-3 items-center">
+        <div className="col-span-1 text-xs text-slate-600 dark:text-slate-400">Fog of War</div>
+        <div className="col-span-2 flex items-center gap-2">
+          <button
+            className={`px-3 py-1 rounded-lg text-sm ${fogEnabled ? "bg-emerald-600 text-white" : "bg-slate-200 dark:bg-slate-700 text-slate-900 dark:text-slate-100"}`}
+            onClick={() => setFogEnabled(!fogEnabled)}
+          >
+            {fogEnabled ? "Aan" : "Uit"}
+          </button>
+
+          <label className="text-xs text-slate-600 dark:text-slate-400 flex items-center gap-2">
+            Zicht:
+            <input
+              type="range"
+              min={1}
+              max={6}
+              value={visionRange}
+              onChange={(e) => setVisionRange(Number(e.target.value))}
+            />
+            <span className="font-mono">{visionRange}</span>
+          </label>
+
+          <label className="text-xs text-slate-600 dark:text-slate-400 flex items-center gap-2">
+            Per-stuk vision
+            <input
+              type="checkbox"
+              checked={perPieceVision}
+              onChange={(e) => setPerPieceVisionEnabled(e.target.checked)}
+            />
+          </label>
+        </div>
+      </div>
+
       {piece && abilities.length > 0 && (
-        <div className="text-xs text-slate-600 dark:text-slate-400">Abilities: {abilities.map(a => a.name).join(", ")}</div>
+        <div className="mt-2 text-xs text-slate-600 dark:text-slate-400">
+          Abilities: {abilities.map(a => a.name).join(", ")}
+        </div>
       )}
     </div>
   );
