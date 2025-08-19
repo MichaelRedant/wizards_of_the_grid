@@ -60,6 +60,9 @@ export interface GameState {
   legalMoves: Coord[];
   log: string[];
 
+  // Turn state
+  hasMoved: boolean;            // true nadat speler een actie heeft gedaan
+
   // Zones & Fog-of-war
   zones: Zone[];
   fogEnabled: boolean;

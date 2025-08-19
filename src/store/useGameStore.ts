@@ -33,6 +33,7 @@ const createGameState = (player: Faction): GameState => {
     selectedAbility: undefined,
     legalMoves: [],
     log: [`Spel gestart. ${player} begint.`],
+    hasMoved: false,
     zones: [],
     fogEnabled: true,
     visionRange: 3,
@@ -55,6 +56,7 @@ const idleState = (): GameState => {
     selectedAbility: undefined,
     legalMoves: [],
     log: ["Klik start om te beginnen."],
+    hasMoved: false,
     zones: [],
     fogEnabled: true,
     visionRange: 3,
@@ -96,6 +98,10 @@ export const useGameStore = create<GameState & Actions>((set, get) => ({
   selectSquare: (coord) => {
     const state = get();
     if (state.status !== "running") return;
+    if (state.hasMoved) {
+      set({ log: [...state.log, "Je mag maar één actie per beurt uitvoeren."] });
+      return;
+    }
     const sq = getSquare(state.board, coord);
     if (!sq) return;
 
@@ -129,6 +135,10 @@ export const useGameStore = create<GameState & Actions>((set, get) => ({
     const state = get();
     if (state.status !== "running") return;
     if (!state.selected) return;
+    if (state.hasMoved) {
+      set({ log: [...state.log, "Je mag maar één actie per beurt uitvoeren."] });
+      return;
+    }
 
     const piece = state.pieces[state.selected];
 
@@ -194,7 +204,7 @@ export const useGameStore = create<GameState & Actions>((set, get) => ({
     }
 
     rebuildBoard(state.board, state.pieces);
-    set({ selected: undefined, legalMoves: [], log });
+    set({ selected: undefined, legalMoves: [], log, hasMoved: true });
   },
 
   endTurn: () => {
@@ -269,6 +279,7 @@ export const useGameStore = create<GameState & Actions>((set, get) => ({
       legalMoves: [],
       log: [...log, `— Einde beurt. ${next} is aan zet.`],
       zones: state.zones,
+      hasMoved: false,
     });
     if (next !== state.player) {
       setTimeout(() => get().runAiTurn(), 500);
@@ -299,5 +310,5 @@ function applyResult(
   if (res.damaged) for (const d of res.damaged) log.push(`💢 ${d.id} -${d.amount} HP.`);
 
   rebuildBoard(state.board, state.pieces);
-  set({ selectedAbility: undefined, legalMoves: [], log });
+  set({ selected: undefined, selectedAbility: undefined, legalMoves: [], log, hasMoved: true });
 }
