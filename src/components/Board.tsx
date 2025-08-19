@@ -147,7 +147,7 @@ export default function Board() {
 
       {status !== "running" && (
         <div className="absolute inset-0 bg-black/40 flex items-center justify-center text-white">
-          {status === "idle" ? "Start het spel." : "Spel beëindigd."}
+          {status === "idle" ? "Kies een kleur om te starten." : "Spel beëindigd."}
         </div>
       )}
     </div>

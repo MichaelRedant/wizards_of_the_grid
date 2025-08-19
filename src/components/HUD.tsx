@@ -10,6 +10,7 @@ export default function HUD() {
   const endGame = useGameStore(s => s.endGame);
   const restartGame = useGameStore(s => s.restartGame);
   const status = useGameStore(s => s.status);
+  const player = useGameStore(s => s.player);
 
   const fogEnabled = useGameStore(s => s.fogEnabled);
   const visionRange = useGameStore(s => s.visionRange);
@@ -25,6 +26,7 @@ export default function HUD() {
       <div className="flex items-center justify-between mb-2">
         <div className="text-sm">
           <div className="font-semibold">Beurt: {turn}</div>
+          <div className="text-slate-600 dark:text-slate-400">Speler: {player}</div>
           {piece ? (
             <div className="text-slate-600 dark:text-slate-400">
               Geselecteerd: <span className="font-mono">{piece.id}</span> ({piece.type})
@@ -42,10 +44,13 @@ export default function HUD() {
               <button className="px-3 py-1.5 rounded-lg bg-slate-200 hover:bg-slate-300 text-sm text-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100" onClick={restartGame}>Herstart</button>
               <button className="px-3 py-1.5 rounded-lg bg-slate-200 hover:bg-slate-300 text-sm text-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100" onClick={endGame}>Stop</button>
             </>
+          ) : status === "idle" ? (
+            <>
+              <button className="px-3 py-1.5 rounded-lg bg-slate-200 hover:bg-slate-300 text-sm text-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100" onClick={() => startGame("white")}>Start wit</button>
+              <button className="px-3 py-1.5 rounded-lg bg-slate-200 hover:bg-slate-300 text-sm text-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100" onClick={() => startGame("black")}>Start zwart</button>
+            </>
           ) : (
-            <button className="px-3 py-1.5 rounded-lg bg-slate-200 hover:bg-slate-300 text-sm text-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100" onClick={status === "idle" ? startGame : restartGame}>
-              {status === "idle" ? "Start" : "Opnieuw"}
-            </button>
+            <button className="px-3 py-1.5 rounded-lg bg-slate-200 hover:bg-slate-300 text-sm text-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100" onClick={restartGame}>Opnieuw</button>
           )}
         </div>
       </div>

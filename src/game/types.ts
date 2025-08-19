@@ -53,6 +53,7 @@ export interface GameState {
   board: Square[];
   pieces: Record<string, Piece>;
   turn: Faction;
+  player: Faction;
   status: GameStatus;
   selected?: string;        // pieceId
   selectedAbility?: string; // abilityId
