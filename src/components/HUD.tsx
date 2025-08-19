@@ -27,6 +27,9 @@ export default function HUD() {
         <div className="text-sm">
           <div className="font-semibold">Beurt: {turn}</div>
           <div className="text-slate-600 dark:text-slate-400">Speler: {player}</div>
+          {turn !== player && (
+            <div className="text-slate-600 dark:text-slate-400">Computer is aan zet…</div>
+          )}
           {piece ? (
             <div className="text-slate-600 dark:text-slate-400">
               Geselecteerd: <span className="font-mono">{piece.id}</span> ({piece.type})
