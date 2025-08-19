@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { castAbility, canCastAbility } from "../game/abilities";
-import type { ApplyResult, Coord, Faction, GameState } from "../game/types";
+import type { ApplyResult, Coord, Faction, GameState, Piece } from "../game/types";
 import { baseStats, getSquare, idx, initialPieces, initialTerrain, isEnemy, legalMoves, rebuildBoard } from "../game/chess";
 
 type Actions = {
@@ -8,10 +8,12 @@ type Actions = {
   selectAbility: (abilityId: string | undefined) => void;
   movePiece: (to: Coord) => void;
   endTurn: () => void;
-  reset: () => void;
+  startGame: () => void;
+  endGame: () => void;
+  restartGame: () => void;
 };
 
-const initialState = (): GameState => {
+const createGameState = (): GameState => {
   const board = initialTerrain();
   const pieces = initialPieces();
   const state: GameState = {
@@ -22,19 +24,40 @@ const initialState = (): GameState => {
     selectedAbility: undefined,
     legalMoves: [],
     log: ["Spel gestart. White begint."],
+    status: "running",
+  };
+  rebuildBoard(state.board, state.pieces);
+  return state;
+};
+
+const idleState = (): GameState => {
+  const board = initialTerrain();
+  const pieces: Record<string, Piece> = {};
+  const state: GameState = {
+    board,
+    pieces,
+    turn: "white",
+    selected: undefined,
+    selectedAbility: undefined,
+    legalMoves: [],
+    log: ["Klik start om te beginnen."],
+    status: "idle",
   };
   rebuildBoard(state.board, state.pieces);
   return state;
 };
 
 export const useGameStore = create<GameState & Actions>((set, get) => ({
-  ...initialState(),
+  ...idleState(),
 
-  reset: () => set(initialState()),
+  startGame: () => set(createGameState()),
+  endGame: () => set({ status: "ended", log: [...get().log, "Spel beëindigd."] }),
+  restartGame: () => set(createGameState()),
   selectAbility: (abilityId) => set({ selectedAbility: abilityId }),
 
   selectSquare: (coord) => {
     const state = get();
+    if (state.status !== "running") return;
     const sq = getSquare(state.board, coord);
     if (!sq) return;
 
@@ -66,6 +89,7 @@ export const useGameStore = create<GameState & Actions>((set, get) => ({
 
   movePiece: (to) => {
     const state = get();
+    if (state.status !== "running") return;
     if (!state.selected) return;
     const piece = state.pieces[state.selected];
     const allowed = state.legalMoves.some(m => m.x === to.x && m.y === to.y);
@@ -127,6 +151,7 @@ export const useGameStore = create<GameState & Actions>((set, get) => ({
 
   endTurn: () => {
     const state = get();
+    if (state.status !== "running") return;
     for (const p of Object.values(state.pieces)) {
       for (const key of Object.keys(p.cooldowns)) p.cooldowns[key] = Math.max(0, p.cooldowns[key] - 1);
     }
