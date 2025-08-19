@@ -9,9 +9,10 @@ export default function Board() {
   const legalMoves = useGameStore(s => s.legalMoves);
   const selected = useGameStore(s => s.selected);
   const selectSquare = useGameStore(s => s.selectSquare);
+  const status = useGameStore(s => s.status);
 
   return (
-    <div className="relative grid grid-cols-8 aspect-square rounded-xl overflow-hidden border border-slate-700">
+    <div className="relative grid grid-cols-8 aspect-square rounded-xl overflow-hidden border border-slate-300 dark:border-slate-700">
       {board.map((sq, i) => {
         const isLight = (sq.coord.x + sq.coord.y) % 2 === 0;
         const on = () => selectSquare(sq.coord);
@@ -22,7 +23,7 @@ export default function Board() {
         return (
           <div
             key={i}
-            onClick={on}
+            onClick={status === "running" ? on : undefined}
             className={cx(
               "relative cursor-pointer select-none",
               isLight ? "bg-boardLight" : "bg-boardDark",
@@ -34,6 +35,11 @@ export default function Board() {
           </div>
         );
       })}
+      {status !== "running" && (
+        <div className="absolute inset-0 bg-black/40 flex items-center justify-center text-white">
+          {status === "idle" ? "Start het spel." : "Spel beëindigd."}
+        </div>
+      )}
     </div>
   );
 }

@@ -32,6 +32,8 @@ export interface Square {
   pieceId?: string;
 }
 
+export type GameStatus = "idle" | "running" | "ended";
+
 export interface GameState {
   board: Square[];
   pieces: Record<string, Piece>;
@@ -40,6 +42,7 @@ export interface GameState {
   selectedAbility?: string; // abilityId
   legalMoves: Coord[];
   log: string[];
+  status: GameStatus;
 }
 
 export type ApplyResult = {
